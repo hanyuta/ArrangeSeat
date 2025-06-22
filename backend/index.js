@@ -1,6 +1,10 @@
 const express = require('express');
 const app = express();
 const port = 8080;
+const authRouter = require('./routes/auth');
+
+app.use(express.json());
+app.use('/api', authRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello from backend!');
