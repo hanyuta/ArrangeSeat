@@ -25,3 +25,20 @@
 .rotate-dot:hover {
     background: #e0e0e0;
 }
+
+.grid {
+    background: #dadada;
+}
+
+.box {
+    background: #fff;
+    border: 1px solid #333;
+    text-align: center;
+    line-height: 100px;
+    font-size: 2rem;
+    position: relative;
+    transition: transform 0.3s;
+    width: 100px;
+    height: 100px;
+    box-sizing: border-box;
+}
