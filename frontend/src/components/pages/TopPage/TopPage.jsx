@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import './TopPage.css';
 import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
@@ -19,6 +19,18 @@ function TopPage() {
     { i: '10', x: 8, y: 2, w: 2, h: 2 },
   ];
 
+  // 各ボックスの回転角度をstateで管理（初期値0度）
+  const [rotations, setRotations] = useState(Array(10).fill(0));
+
+  // ドットにhoverしたときの処理
+  const handleDotHover = (index) => {
+    setRotations(prev => {
+      const newRotations = [...prev];
+      newRotations[index] = (newRotations[index] + 90) % 360;
+      return newRotations;
+    });
+  };
+
   return (
     <div>
       <GridLayout
@@ -29,10 +41,27 @@ function TopPage() {
         width={1000}
         isResizable={false}
         isDraggable={true}
+        compactType={null}
       >
         {Array.from({ length: 10 }, (_, i) => (
-          <div key={String(i + 1)} style={{ border: '1px solid #333', background: '#fff', textAlign: 'center', lineHeight: '80px' }}>
-            ドラッグできる要素{i + 1}
+          <div key={String(i + 1)} style={{ border: '1px solid #333', background: '#fff', textAlign: 'center', lineHeight: '80px', position: 'relative' }}>
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                transition: 'transform 0.3s',
+                transform: `rotate(${rotations[i]}deg)`
+              }}
+            >
+              {i + 1}
+              <span
+                className="rotate-dot"
+                onClick={e => { e.stopPropagation(); handleDotHover(i); }}
+                title="ここにカーソルを乗せると回転します"
+              >
+                ・
+              </span>
+            </div>
           </div>
         ))}
       </GridLayout>

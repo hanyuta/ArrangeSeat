@@ -1,0 +1,27 @@
+.layout {
+    cursor: pointer;
+}
+
+.rotate-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 2;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    user-select: none;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: background 0.2s;
+}
+
+.rotate-dot:hover {
+    background: #e0e0e0;
+}
