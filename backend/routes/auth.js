@@ -10,8 +10,9 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'メールアドレスまたはパスワードが違います' });
     }
     // 認証成功
-    return res.json({ message: 'ログイン成功' });
+    return res.status(200).json({ message: 'ログイン成功' });
   } catch (err) {
+    console.error('LOGIN ERROR:', err, req.body);
     return res.status(500).json({ message: 'サーバーエラー' });
   }
 });

@@ -1,20 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import LoginPage from './LoginPage';
-
-function TopPage() {
-  return <h2>トップページ</h2>;
-}
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/common/Header';
+import LoginPage from './components/pages/LoginPage/LoginPage';
+import TopPage from './components/pages/TopPage/TopPage';
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
+      <Header />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/top" element={<TopPage />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
