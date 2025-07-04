@@ -1,78 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import "./TopPage.css";
 
-const BOX = "BOX";
-const GRID_SIZE = 5; // 5x2のグリッド
+const GRID_SIZE = 20;
+const CELL_SIZE = 32; // px
+const BOX_TYPE = "BOX";
 
-// ドラッグ対象のボックス
-function DraggableBox({ id, x, y, rotation, onMove, onRotate }) {
-  const [{ isDragging }, drag] = useDrag({
-    type: BOX,
-    item: { id, x, y },
+// 1マス分のグリッドセル
+function GridCell({ x, y, isOver, canDrop, onDrop, children }) {
+  const [{ isOverCurrent, canDropCurrent }, drop] = useDrop({
+    accept: BOX_TYPE,
+    drop: () => onDrop(x, y),
     collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
+      isOverCurrent: monitor.isOver(),
+      canDropCurrent: monitor.canDrop(),
     }),
   });
-
-  return (
-    <div
-      ref={drag}
-      className="box"
-      style={{
-        gridColumn: x + 1,
-        gridRow: y + 1,
-        opacity: isDragging ? 0.5 : 1,
-        transform: `rotate(${rotation}deg)`,
-        transition: "transform 0.3s",
-        cursor: "move",
-        position: "relative",
-      }}
-    >
-      {id + 1}
-      <span
-        className="rotate-dot"
-        onClick={(e) => {
-          e.stopPropagation();
-          onRotate(id);
-        }}
-        title="クリックで90度回転"
-        style={{
-          position: "absolute",
-          top: 5,
-          right: 5,
-          zIndex: 2,
-          fontSize: "1.5rem",
-          color: "#666",
-          cursor: "pointer",
-          userSelect: "none",
-        }}
-      >
-        ・
-      </span>
-    </div>
-  );
-}
-
-// グリッドの各マス
-function GridCell({ x, y, onDropBox, children }) {
-  const [, drop] = useDrop({
-    accept: BOX,
-    drop: (item) => {
-      onDropBox(item.id, x, y);
-    },
-  });
-
   return (
     <div
       ref={drop}
       className="grid-cell"
       style={{
-        border: "1px solid #eee",
-        width: "100%",
-        height: "100%",
-        position: "relative",
+        width: CELL_SIZE,
+        height: CELL_SIZE,
+        background: isOverCurrent && canDropCurrent ? '#aaf' : '#fff',
+        border: '1px solid #ddd',
+        boxSizing: 'border-box',
+        position: 'relative',
       }}
     >
       {children}
@@ -80,73 +35,78 @@ function GridCell({ x, y, onDropBox, children }) {
   );
 }
 
-function TopPage() {
-  // 10個のボックスの位置と回転を管理
-  const [boxes, setBoxes] = useState(
-    Array.from({ length: 10 }, (_, i) => ({
-      id: i,
-      x: i % GRID_SIZE,
-      y: Math.floor(i / GRID_SIZE),
-      rotation: 0,
-    }))
+// ドラッグ可能なボックス
+function DraggableBox({ x, y }) {
+  const [{ isDragging }, drag] = useDrag({
+    type: BOX_TYPE,
+    item: { x, y },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+  return (
+    <div
+      ref={drag}
+      className="draggable-box"
+      style={{
+        width: CELL_SIZE - 6,
+        height: CELL_SIZE - 6,
+        background: '#4af',
+        borderRadius: 6,
+        opacity: isDragging ? 0.5 : 1,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 18,
+        position: 'absolute',
+        top: 3,
+        left: 3,
+        zIndex: 2,
+        cursor: 'grab',
+      }}
+    >
+      ■
+    </div>
   );
+}
 
-  // ボックスの移動
-  const moveBox = (id, x, y) => {
-    setBoxes((prev) =>
-      prev.map((box) =>
-        box.id === id ? { ...box, x, y } : box
-      )
-    );
-  };
+function TopPage() {
+  // ボックスの座標（グリッド単位）
+  const [boxPos, setBoxPos] = useState({ x: 2, y: 2 });
 
-  // ボックスの回転
-  const rotateBox = (id) => {
-    setBoxes((prev) =>
-      prev.map((box) =>
-        box.id === id
-          ? { ...box, rotation: (box.rotation + 90) % 360 }
-          : box
-      )
-    );
-  };
+  // ドロップ時に座標を更新
+  const handleDrop = useCallback((x, y) => {
+    setBoxPos({ x, y });
+  }, []);
 
-  // グリッドの描画
-  const gridCells = [];
-  for (let y = 0; y < 2; y++) {
+  // グリッドを2次元配列で描画
+  const grid = [];
+  for (let y = 0; y < GRID_SIZE; y++) {
+    const row = [];
     for (let x = 0; x < GRID_SIZE; x++) {
-      const box = boxes.find((b) => b.x === x && b.y === y);
-      gridCells.push(
-        <GridCell key={`${x}-${y}`} x={x} y={y} onDropBox={moveBox}>
-          {box && (
-            <DraggableBox
-              id={box.id}
-              x={box.x}
-              y={box.y}
-              rotation={box.rotation}
-              onMove={moveBox}
-              onRotate={rotateBox}
-            />
-          )}
+      const isBoxHere = boxPos.x === x && boxPos.y === y;
+      row.push(
+        <GridCell key={x + '-' + y} x={x} y={y} onDrop={handleDrop}>
+          {isBoxHere && <DraggableBox x={x} y={y} />}
         </GridCell>
       );
     }
+    grid.push(
+      <div key={y} style={{ display: 'flex' }}>
+        {row}
+      </div>
+    );
   }
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div
-        className="grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${GRID_SIZE}, 100px)`,
-          gridTemplateRows: "repeat(2, 100px)",
-          gap: "8px",
-          width: `${GRID_SIZE * 108}px`,
-          margin: "40px auto",
-        }}
-      >
-        {gridCells}
+      <div style={{ padding: 24 }}>
+        <div style={{ display: 'inline-block', border: '2px solid #bbb', background: '#f8f8f8' }}>
+          {grid}
+        </div>
       </div>
     </DndProvider>
   );

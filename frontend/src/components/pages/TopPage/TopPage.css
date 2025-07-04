@@ -42,3 +42,16 @@
     height: 100px;
     box-sizing: border-box;
 }
+
+.grid-cell {
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.draggable-box {
+    box-sizing: border-box;
+    transition: box-shadow 0.2s, opacity 0.2s;
+}
