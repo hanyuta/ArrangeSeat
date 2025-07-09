@@ -225,6 +225,7 @@ const TopPage = forwardRef((props, ref) => {
 
   // 保存API呼び出し
   const saveBoxes = useCallback(async () => {
+    console.log(boxes);
     try {
       const res = await fetch('/api/boxes', {
         method: 'POST',
@@ -275,6 +276,26 @@ const TopPage = forwardRef((props, ref) => {
   }
 
   return (
+    <div>
+    {/* 保存ボタンをヘッダー直下に配置 */}
+    <div style={{ padding: '8px 24px', background: '#f8f8f8', borderBottom: '1px solid #ddd' }}>
+      <button
+        onClick={saveBoxes}
+        style={{
+          padding: '8px 20px',
+          fontSize: 16,
+          background: '#1976d2',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 4,
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+        }}
+      >
+        保存
+      </button>
+    </div>
     <DndProvider backend={HTML5Backend}>
       <div style={{ padding: 24 }}>
         {/* コントロールパネル */}
@@ -331,6 +352,7 @@ const TopPage = forwardRef((props, ref) => {
         </div>
       </div>
     </DndProvider>
+    </div>
   );
 });
 

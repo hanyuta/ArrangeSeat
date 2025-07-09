@@ -21,8 +21,19 @@ router.post('/', async (req, res) => {
         );
         return res.status(200).json({ message: '保存しました' });
     } catch (err) {
-        console.error('BOX SAVE ERROR:', err);
+        console.error('BOX SAVE ERROR:', err, boxes);
         return res.status(500).json({ message: 'サーバーエラー' });
+    }
+});
+
+// GET /api/boxes
+router.get('/', async (req, res) => {
+    try {
+        const boxes = await DeskPositionManage.findAll();
+        res.json(boxes);
+    } catch (err) {
+        console.error('BOX FETCH ERROR:', err);
+        res.status(500).json({ message: 'サーバーエラー' });
     }
 });
 
